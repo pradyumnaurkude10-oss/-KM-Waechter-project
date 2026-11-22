@@ -1,4 +1,5 @@
-# test_fleet_report.py
+"""Tests for fleet summary calculations."""
+
 from fleet_report import fleet_summary
 
 SAMPLE = [
@@ -7,10 +8,16 @@ SAMPLE = [
 ]
 
 
-def test_summary_counts_due_cars():
-    # Only VOS-4471 is nearly worn, so exactly one car is due.
+def test_summary_counts_due_cars() -> None:
+    """Only the nearly worn car should be due."""
     assert fleet_summary(SAMPLE)["due"] == 1
 
 
-# TODO(you): with IBM Bob, ADD a test that fleet_summary does NOT crash when a car has no
-# "last_service_km" reading (like VOS-7788 in fleet_sample.json). It crashes today. Make it pass.
+def test_summary_handles_missing_service_reading() -> None:
+    """A missing last-service reading must not crash fleet summaries."""
+    fleet = [{"id": "VOS-7788", "odometer": 92000}]
+
+    summary = fleet_summary(fleet)
+
+    assert summary["count"] == 1
+    assert summary["average_wear"] == 0.0
